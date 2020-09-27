@@ -1,7 +1,6 @@
 import { admin } from "lib/firebase/admin";
 import { authMiddleware } from "lib/middleware";
 import { User } from "models";
-import { updateUserValidation } from "models/User";
 import { ApiError } from "lib/errorHandler";
 import createHandler from "lib/routeHandler";
 
@@ -39,15 +38,6 @@ handler.post(authMiddleware, async (req, res) => {
   });
 
   res.status(201).json(newUser);
-});
-
-handler.put(async (req, res) => {
-  const data = await updateUserValidation.validate(req.body, {
-    abortEarly: false,
-    stripUnknown: true,
-  });
-
-  res.json(data);
 });
 
 export default handler;
