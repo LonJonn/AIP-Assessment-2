@@ -5,6 +5,7 @@ import {
   prop,
 } from "@typegoose/typegoose";
 import { TimeStamps } from "@typegoose/typegoose/lib/defaultClasses";
+import * as yup from "yup";
 
 // ==================== User Model ====================
 
@@ -55,3 +56,11 @@ export class EmbeddedUserSchema {
 }
 
 export default User;
+
+// ==================== Embedded User ====================
+
+export const updateUserValidation = yup.object({
+  email: yup.string().email().optional(),
+  displayName: yup.string().min(4).max(30).optional(),
+  password: yup.string().min(8).optional(),
+});

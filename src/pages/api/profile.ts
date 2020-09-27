@@ -1,15 +1,15 @@
-import express from "express";
-import { validationResult } from "express-validator";
-import { authMiddleware } from "../middleware";
-import { User } from "../models";
-import { ApiError } from "../utils/errorHandler";
-import { auth } from "../utils/firebase";
+import { admin } from "lib/firebase/admin";
+import { authMiddleware } from "lib/middleware";
+import { User } from "models";
+import { updateUserValidation } from "models/User";
+import { ApiError } from "lib/errorHandler";
+import createHandler from "lib/routeHandler";
 
-const profileRouter = express.Router();
+const handler = createHandler();
 
 // ==================== User Profile ====================
 
-profileRouter.get("/me", authMiddleware, async (req, res) => {
+handler.get(authMiddleware, async (req, res) => {
   const user = await User.findById(req.userId);
   res.json(user);
 });
@@ -21,10 +21,8 @@ profileRouter.get("/me", authMiddleware, async (req, res) => {
  * user first signs up on the website to finish creating their
  * account!
  */
-profileRouter.post("/", authMiddleware, async (req, res) => {
-  validationResult(req).throw();
-
-  let user = await auth.getUser(req.userId);
+handler.post(authMiddleware, async (req, res) => {
+  let user = await admin.auth().getUser(req.userId);
   const { uid, email, displayName, photoURL } = user;
 
   // Don't create user account data twice
@@ -33,15 +31,23 @@ profileRouter.post("/", authMiddleware, async (req, res) => {
     throw new ApiError(400, "This account has already been created.");
   }
 
-  // `email` & `displayName` will always be defined
   const newUser = await User.create({
     _id: uid,
-    email: email!,
-    displayName: displayName!,
+    email,
+    displayName,
     photoURL,
   });
 
   res.status(201).json(newUser);
 });
 
-export default profileRouter;
+handler.put(async (req, res) => {
+  const data = await updateUserValidation.validate(req.body, {
+    abortEarly: false,
+    stripUnknown: true,
+  });
+
+  res.json(data);
+});
+
+export default handler;

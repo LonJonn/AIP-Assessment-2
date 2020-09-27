@@ -1,6 +1,9 @@
-import type { Request, Response, NextFunction } from "express";
-import { Result as ValidationResult, ValidationError } from "express-validator";
-import logger from "./logger";
+import { NextApiRequest, NextApiResponse } from "next";
+import { ValidationError } from "yup";
+import logger from "utils/logger";
+import type { ErrorHandler } from "next-connect";
+
+// =================== Custom Errors =====================
 
 /**
  * Custom Error for handling any expected api errors
@@ -27,54 +30,77 @@ export class NoUserError extends ApiError {
 }
 
 /**
- * Custom format for errors returned from the server
+ * Custom Error for non existent users
  */
-interface ErrorResponse {
+export class NoUserError extends ApiError {
+  constructor() {
+    super(400, "No User with that ID exists.");
+    Object.setPrototypeOf(this, new.target.prototype);
+  }
+}
+
+// =================== Error Handler =====================
+
+interface IError {
+  field?: string;
+  message: string;
+}
+
+/**
+ * Format of errors returned from the server
+ */
+export interface ErrorResponse {
   type: "api" | "validation";
   status: "error";
   statusCode: number;
-  message?: string;
-  errors?: ValidationError[];
+  errors: IError[];
 }
 
 /**
  * Custom error handling middleware to catch expected errors or
  * return a default 500 error message if unknown
  */
-const errorHandler = (
-  err: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const errorHandler: ErrorHandler<
+  NextApiRequest | any,
+  NextApiResponse | any
+> = (err, req, res, next) => {
   /**
    * Expected Api Errors
    */
   if (err instanceof ApiError) {
     const { statusCode, message } = err;
+
+    const errors: IError[] = [{ message }];
+
     return res.status(statusCode).json({
       type: "api",
       status: "error",
       statusCode,
-      message,
+      errors,
     } as ErrorResponse);
   }
 
   /**
    * Validation Errors
    */
-  if ((err as Object).hasOwnProperty("throw")) {
+  if (err instanceof ValidationError) {
+    const errors = err.inner.map((error) => ({
+      field: error.path,
+      message: error.message,
+    }));
     return res.status(400).json({
       type: "validation",
       status: "error",
       statusCode: 400,
-      errors: ((err as unknown) as ValidationResult<ValidationError>).array(),
+      errors,
     } as ErrorResponse);
   }
 
-  // If Unkown Error
+  /**
+   * Unexpected errors
+   */
+  res.status(500).send("Something went wrong.");
   logger.error(err.stack);
-  res.sendStatus(500);
 };
 
 export default errorHandler;
