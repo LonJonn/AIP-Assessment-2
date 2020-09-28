@@ -13,7 +13,7 @@
     "url": "git+https://github.com/LonJonn/AIP-Assessment-2.git"
   },
   "dependencies": {
-    "@chakra-ui/core": "^1.0.0-rc.4",
+    "@chakra-ui/core": "^1.0.0-rc.5",
     "@typegoose/typegoose": "^7.4.1",
     "firebase": "^7.21.1",
     "firebase-admin": "^9.2.0",
