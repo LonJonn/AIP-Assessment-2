@@ -21,18 +21,18 @@ export default function useAuth() {
   }, []);
 
   async function signInWithGoogle() {
-    const user = await firebase
+    const response = await firebase
       .auth()
       .signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
-    if (!user.additionalUserInfo?.isNewUser) {
+    if (response.additionalUserInfo?.isNewUser) {
       await createProfile();
     }
   }
 
   async function signOut() {
     await firebase.auth().signOut();
-    setUser(undefined);
+    setUser(null);
   }
 
   return {
