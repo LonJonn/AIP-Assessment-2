@@ -1,12 +1,13 @@
-import React from "react";
 import { ChakraProvider } from "@chakra-ui/core";
+import Head from "next/head";
+import React from "react";
+import { SWRConfig } from "swr";
+import fetcher from "utils/fetcher";
+import theme from "../theme";
 import type { AppProps } from "next/app";
 
-import theme from "../theme";
-import Head from "next/head";
-
 const App: React.FC<AppProps> = ({ Component, pageProps }) => (
-  <ChakraProvider resetCSS theme={theme}>
+  <>
     <Head>
       <title>Pinki</title>
       <link rel="icon" href="/favicon.ico" />
@@ -16,8 +17,12 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => (
       ></link>
     </Head>
 
-    <Component {...pageProps} />
-  </ChakraProvider>
+    <SWRConfig value={{ fetcher }}>
+      <ChakraProvider resetCSS theme={theme}>
+        <Component {...pageProps} />
+      </ChakraProvider>
+    </SWRConfig>
+  </>
 );
 
 export default App;

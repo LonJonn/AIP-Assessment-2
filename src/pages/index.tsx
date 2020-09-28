@@ -18,6 +18,9 @@ const Home: React.FC = () => {
       <Link href="/login">
         <a>login</a>
       </Link>
+      <Link href="/test">
+        <a>Test</a>
+      </Link>
 
       <footer>Footer content here</footer>
     </div>
