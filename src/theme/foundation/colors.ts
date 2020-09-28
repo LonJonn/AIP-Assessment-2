@@ -1,6 +1,6 @@
 // Color swatch tool: https://smart-swatch.netlify.app/
 
-const priamry = {
+const primary = {
   50: "#e9e5ff",
   100: "#bab5ff",
   200: "#8983fc",
@@ -14,7 +14,7 @@ const priamry = {
 };
 
 const colors = {
-  primary: priamry,
+  primary: primary,
   blue: {
     50: "#e9e5ff",
     100: "#bab5ff",
