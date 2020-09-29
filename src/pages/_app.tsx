@@ -1,8 +1,9 @@
-import { ChakraProvider } from "@chakra-ui/core";
-import Head from "next/head";
 import React from "react";
+import Head from "next/head";
+import { AuthProvider } from "lib/auth";
 import { SWRConfig } from "swr";
 import fetcher from "utils/fetcher";
+import { ChakraProvider } from "@chakra-ui/core";
 import theme from "../theme";
 import type { AppProps } from "next/app";
 
@@ -17,11 +18,13 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => (
       ></link>
     </Head>
 
-    <SWRConfig value={{ fetcher }}>
-      <ChakraProvider resetCSS theme={theme}>
-        <Component {...pageProps} />
-      </ChakraProvider>
-    </SWRConfig>
+    <AuthProvider>
+      <SWRConfig value={{ fetcher }}>
+        <ChakraProvider resetCSS theme={theme}>
+          <Component {...pageProps} />
+        </ChakraProvider>
+      </SWRConfig>
+    </AuthProvider>
   </>
 );
 

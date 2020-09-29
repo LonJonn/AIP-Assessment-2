@@ -1,13 +1,13 @@
-import { Button } from "@chakra-ui/core";
-import useAuth from "lib/auth";
-import { UserSchema } from "models/User";
-import Link from "next/link";
 import React from "react";
+import Link from "next/link";
+import { useAuth } from "lib/auth";
+import { UserSchema } from "models/User";
 import useSWR from "swr";
 import { FetcherError } from "utils/fetcher";
+import { Button } from "@chakra-ui/core";
 
 const Test: React.FC = () => {
-  const { accessToken, signInWithGoogle, signOut } = useAuth();
+  const { user, accessToken, signInWithGoogle, signOut } = useAuth();
   const { data: userData, error } = useSWR<UserSchema, FetcherError>(
     accessToken ? ["/api/profile", accessToken] : null
   );
@@ -23,6 +23,10 @@ const Test: React.FC = () => {
         </Button>
       )}
 
+      <Button my={8} d={"block"} onClick={() => user?.getIdToken(true)}>
+        Refresh
+      </Button>
+
       <h1>Data</h1>
       {userData && <pre>{JSON.stringify(userData, null, 2)}</pre>}
 
@@ -33,3 +37,14 @@ const Test: React.FC = () => {
 };
 
 export default Test;
+
+// export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+//   const { "pinky-auth": accessToken } = nookies.get(ctx);
+//   const data = await fetcher("http://localhost:3000/api/profile", accessToken);
+
+//   return {
+//     props: {
+//       user: data,
+//     },
+//   };
+// }

@@ -1,24 +1,53 @@
+import constate from "constate";
+import { useRouter } from "next/dist/client/router";
+import nookies from "nookies";
 import { useEffect, useState } from "react";
 import fetcher from "utils/fetcher";
 import { firebase } from "./firebase/client";
 
-export default function useAuth() {
+async function createProfile(accessToken: string) {
+  return await fetcher("/api/profile", accessToken, { method: "POST" });
+}
+
+function authContextHook() {
   const [user, setUser] = useState<firebase.User | null>();
   const [accessToken, setAccessToken] = useState<string>();
 
-  async function createProfile() {
-    return await fetcher("/api/profile", accessToken, { method: "POST" });
-  }
+  const Router = useRouter();
 
+  /**
+   * Update user state whenever firebase auth state changes.
+   */
   useEffect(() => {
     return firebase.auth().onAuthStateChanged(setUser);
-  });
+  }, []);
 
+  /**
+   * Update access token whenever token refreshes or auth state changes.
+   */
   useEffect(() => {
     return firebase.auth().onIdTokenChanged(async (user) => {
-      setAccessToken(await user?.getIdToken());
+      const accessToken = await user?.getIdToken();
+      setAccessToken(accessToken);
+
+      // Store/Remove access token cookie for SSR
+      if (accessToken) {
+        nookies.set(null, "pinky-auth", accessToken, {
+          maxAge: 60 * 60,
+          path: "/",
+        });
+      } else {
+        nookies.destroy(null, "pinky-auth");
+      }
     });
   }, []);
+
+  // =================== Auth Actions =====================
+
+  async function signIn(email: string, pass: string) {
+    await firebase.auth().signInWithEmailAndPassword(email, pass);
+    Router.push("/");
+  }
 
   async function signInWithGoogle() {
     const response = await firebase
@@ -26,19 +55,24 @@ export default function useAuth() {
       .signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
     if (response.additionalUserInfo?.isNewUser) {
-      await createProfile();
+      await createProfile(accessToken!); // Access Token is defined at this point
     }
+
+    Router.push("/");
   }
 
   async function signOut() {
+    Router.push("/");
     await firebase.auth().signOut();
-    setUser(null);
   }
 
   return {
     user,
     accessToken,
+    signIn,
     signInWithGoogle,
     signOut,
   };
 }
+
+export const [AuthProvider, useAuth] = constate(authContextHook);

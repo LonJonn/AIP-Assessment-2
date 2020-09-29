@@ -30,10 +30,11 @@ handler.post(authMiddleware, async (req, res) => {
     throw new ApiError(400, "This account has already been created.");
   }
 
+  // Email and Display Name are defined at this point so cast to NonNullable
   const newUser = await User.create({
     _id: uid,
-    email,
-    displayName,
+    email: email!,
+    displayName: displayName!,
     photoURL,
   });
 

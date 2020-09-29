@@ -13,13 +13,12 @@ import {
   Stack,
   useToast,
 } from "@chakra-ui/core";
-import { firebase } from "lib/firebase/client";
-import useAuth from "lib/auth";
+import { useAuth } from "lib/auth";
 import { FetcherError } from "utils/fetcher";
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
-  const { signInWithGoogle } = useAuth();
+  const { signIn, signInWithGoogle } = useAuth();
 
   // ==================== Toast 🍞 ====================
 
@@ -45,7 +44,7 @@ const Login: React.FC = () => {
     const password = e.currentTarget["password"].value;
 
     try {
-      await firebase.auth().signInWithEmailAndPassword(email, password);
+      await signIn(email, password);
     } catch (error) {
       errorToast(error.message);
     } finally {
