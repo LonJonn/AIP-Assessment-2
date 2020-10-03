@@ -14,7 +14,7 @@ const priamry = {
 };
 
 const colors = {
-  primary: priamry,
+  primary: primary,
   blue: {
     50: "#e9e5ff",
     100: "#bab5ff",

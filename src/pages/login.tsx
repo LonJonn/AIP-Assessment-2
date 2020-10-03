@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Head from "next/head";
 import Link from "next/link";
 import {
+  Box,
   Button,
   Container,
   Divider,
@@ -12,24 +13,12 @@ import {
   Stack,
   useToast,
 } from "@chakra-ui/core";
-import { auth, authProviders } from "lib/firebase/client";
-import { ErrorResponse } from "lib/errorHandler";
+import { useAuth } from "lib/auth";
+import { FetcherError } from "utils/fetcher";
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
-
-  async function createProfile() {
-    const accessToken = await auth.currentUser.getIdToken();
-
-    const response = await fetch("/api/profile", {
-      method: "POST",
-      headers: {
-        authorization: "Bearer " + accessToken,
-      },
-    });
-
-    return (await response.json()) as ErrorResponse;
-  }
+  const { signIn, signInWithGoogle } = useAuth();
 
   // ==================== Toast 🍞 ====================
 
@@ -47,7 +36,7 @@ const Login: React.FC = () => {
 
   // ==================== Standard Login ====================
 
-  const emailPassLogin: React.FormEventHandler<HTMLDivElement> = async (e) => {
+  const emailPassLogin: React.FormEventHandler<HTMLFormElement> = async (e) => {
     e.preventDefault();
     setLoading(true);
 
@@ -55,7 +44,7 @@ const Login: React.FC = () => {
     const password = e.currentTarget["password"].value;
 
     try {
-      await auth.signInWithEmailAndPassword(email, password);
+      await signIn(email, password);
     } catch (error) {
       errorToast(error.message);
     } finally {
@@ -65,19 +54,12 @@ const Login: React.FC = () => {
 
   // ==================== Social Login ====================
 
-  const providerLogin = async (provider: string) => {
+  const providerLogin = async () => {
     try {
-      const result = await auth.signInWithPopup(authProviders[provider]);
-
-      // Create profile in DB if first time logging in with social
-      if (result.additionalUserInfo.isNewUser) {
-        const { errors } = await createProfile();
-        errors.map((err) =>
-          errorToast(err.message, "Failed to create new profile 😢")
-        );
-      }
+      await signInWithGoogle();
     } catch (error) {
-      errorToast(error.message);
+      const { details } = error as FetcherError;
+      errorToast(details?.errors[0].message || "Something went wrong.");
     }
   };
 
@@ -92,32 +74,30 @@ const Login: React.FC = () => {
       </Link>
 
       <Container maxW="30rem" mt={32}>
-        <Stack as="form" onSubmit={emailPassLogin} spacing={8}>
-          <Heading fontSize="6xl" textAlign="center">
-            Login
-          </Heading>
-          <FormControl isRequired>
-            <FormLabel htmlFor="username">Email</FormLabel>
-            <Input id="username" variant="filled" />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" type="password" />
-          </FormControl>
-          <Button type="submit" w="full" size="lg" isLoading={loading}>
-            Submit
-          </Button>
+        <Box as="form" onSubmit={emailPassLogin}>
+          <Stack spacing={8}>
+            <Heading fontSize="6xl" textAlign="center">
+              Login
+            </Heading>
+            <FormControl isRequired>
+              <FormLabel htmlFor="username">Email</FormLabel>
+              <Input id="username" variant="filled" />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="password">Password</FormLabel>
+              <Input id="password" type="password" />
+            </FormControl>
+            <Button type="submit" w="full" size="lg" isLoading={loading}>
+              Submit
+            </Button>
 
-          <Divider />
+            <Divider />
 
-          <Button
-            colorScheme="gray"
-            size="lg"
-            onClick={() => providerLogin("google")}
-          >
-            Login with Google
-          </Button>
-        </Stack>
+            <Button colorScheme="gray" size="lg" onClick={providerLogin}>
+              Login with Google
+            </Button>
+          </Stack>
+        </Box>
       </Container>
     </>
   );

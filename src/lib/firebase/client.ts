@@ -15,9 +15,4 @@ if (!firebase.apps.length) {
   });
 }
 
-export const authProviders = {
-  google: new firebase.auth.GoogleAuthProvider(),
-  github: new firebase.auth.GithubAuthProvider(),
-};
-
-export const auth = firebase.auth();
+export { firebase };

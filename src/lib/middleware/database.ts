@@ -11,7 +11,7 @@ const initDatabase = () =>
       useUnifiedTopology: true,
     })
     .then(() => {
-      logger.info("Connected to DB! 😊");
+      console.info("Connected to DB! 😊");
     });
 
 const withDatabase: RequestHandler<NextApiRequest, NextApiResponse> = async (

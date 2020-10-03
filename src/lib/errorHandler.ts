@@ -93,7 +93,7 @@ const errorHandler: ErrorHandler<
    * Unexpected errors
    */
   res.status(500).send("Something went wrong.");
-  logger.error(err.stack);
+  console.error(err.stack);
 };
 
 export default errorHandler;
