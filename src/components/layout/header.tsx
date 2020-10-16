@@ -57,7 +57,7 @@ const NavDropDown: React.FC = () => {
         variant="ghost"
         color={useColorModeValue("primary.900", "primary.50")}
       >
-        {user.displayName.split(" ")[0]}
+        {user.displayName?.split(" ")[0] || user.displayName}
       </MenuButton>
       <MenuList>
         <MenuItem>Profile</MenuItem>
