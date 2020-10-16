@@ -44,9 +44,12 @@ const NavItem: React.FC<NavItemProps> = ({ children, href, ...restProps }) => (
 /**
  * Navbar Drop Down Menu
  */
-const NavDropDown: React.FC = () => {
-  const { user, signOut } = useAuth();
+interface NavDropDownProps {
+  user: firebase.User;
+  signOut: () => Promise<void>;
+}
 
+const NavDropDown: React.FC<NavDropDownProps> = ({ user, signOut }) => {
   if (!user) return <NavItem href="/login">Sign In</NavItem>;
 
   return (
@@ -92,6 +95,7 @@ const MenuIcon = (
  * Header
  */
 const Header: React.FC = () => {
+  const { user, signOut } = useAuth();
   const [show, setShow] = useState(false);
 
   return (
@@ -137,7 +141,8 @@ const Header: React.FC = () => {
             display={{ base: show ? "block" : "none", md: "block" }}
             w={{ base: "full", md: "auto" }}
           >
-            <NavDropDown />
+            {/* Pass props down to avoid conditional hook calls */}
+            <NavDropDown user={user} signOut={signOut} />
           </Box>
         </Flex>
       </Container>
