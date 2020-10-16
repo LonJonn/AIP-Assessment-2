@@ -128,7 +128,7 @@ const Register: React.FC = () => {
               Submit
             </Button>
 
-            <Link color="red.300">
+            <Link as="span" color="red.300">
               <NextLink href="/">Cancel</NextLink>
             </Link>
           </Flex>

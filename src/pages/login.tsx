@@ -118,7 +118,7 @@ const Login: React.FC = () => {
               Submit
             </Button>
 
-            <Link color="blue.300">
+            <Link as="span" color="blue.300">
               <NextLink href="/register">Register</NextLink>
             </Link>
           </Flex>
