@@ -1,4 +1,4 @@
-import { Container, Box, Grid, Divider } from "@chakra-ui/core";
+import { Avatar, AvatarBadge, Wrap, Img } from "@chakra-ui/core";
 import React from "react";
 import { EmbeddedUserSchema } from "models/User";
 
@@ -7,15 +7,22 @@ interface LeaderboardRowProps {
 }
 
 const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user }) => {
-  const { _id, displayName, email } = user;
+  const { _id, displayName, email, photoURL } = user;
 
   return (
     <>
-      <Box>
-        {_id}
-        {displayName}
-        {email}
-      </Box>
+      <tr>
+        <td>{_id}</td>
+        {/* If User has a profile picutre then implement */}
+        {/* If Not then give them a placeholder picture */}
+        <td>
+          <Wrap>
+            <Avatar name={displayName} src={photoURL} />
+          </Wrap>
+        </td>
+        <td>{displayName}</td>
+        <td>{email}</td>
+      </tr>
     </>
   );
 };

@@ -2,14 +2,7 @@ import React from "react";
 import useSWR from "swr";
 import { EmbeddedUserSchema } from "models/User";
 import { ApiError } from "lib/errorHandler";
-import {
-  Container,
-  Heading,
-  Box,
-  Divider,
-  Grid,
-  SimpleGrid,
-} from "@chakra-ui/core";
+import { Container, Heading, Box, Divider, Grid, SimpleGrid } from "@chakra-ui/core";
 import LeaderboardRow from "components/leaderboard/LeaderboardRow";
 import { database } from "firebase";
 
@@ -24,13 +17,11 @@ const Leaderboard: React.FC = () => {
         <title> Pinki | Leaderboard </title>
       </head>
 
-      <Container maxW="4xl" centerContent>
+      <Container maxW="5xl" centerContent>
         <Heading size="xl" m="8">
           Global Leaderboard
         </Heading>
-      </Container>
 
-      <Container maxW="5xl">
         <Grid templateColumns="repeat(5, 1fr)" gap={6}>
           <Box w="100%" h="10">
             Rank #
@@ -47,11 +38,11 @@ const Leaderboard: React.FC = () => {
         <Divider borderColor="red.200" />
 
         {allUsers && (
-          <SimpleGrid column={1}>
+          <Box as="table" w="full" cellPadding={20}>
             {allUsers.map((user) => (
               <LeaderboardRow user={user} />
             ))}
-          </SimpleGrid>
+          </Box>
         )}
       </Container>
     </>
