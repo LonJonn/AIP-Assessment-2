@@ -6,7 +6,7 @@ const handler = createHandler();
 
 // get request to recieve all users
 handler.get(async (req, res) => {
-  const users = await User.find();
+  const users = await User.find().limit(10).sort({ email: 1 });
   if (!users) throw new ApiError(400, "No Users Found");
   res.json(users);
 });

@@ -22,7 +22,7 @@ const Leaderboard: React.FC = () => {
           Global Leaderboard
         </Heading>
 
-        <Grid templateColumns="repeat(5, 1fr)" gap={6}>
+        {/* <Grid templateColumns="repeat(5, 1fr)" gap={6}>
           <Box w="100%" h="10">
             Rank #
           </Box>
@@ -34,7 +34,16 @@ const Leaderboard: React.FC = () => {
           <Box w="100%" h="10">
             # of Completed Favours
           </Box>
-        </Grid>
+        </Grid> */}
+
+        <Box as="table" w="full" cellPadding={20} textAlign="left">
+          <tr>
+            <th>Rank #</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th># of Completed Favours</th>
+          </tr>
+        </Box>
         <Divider borderColor="red.200" />
 
         {allUsers && (

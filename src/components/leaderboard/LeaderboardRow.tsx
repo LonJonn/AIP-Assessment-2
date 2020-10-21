@@ -12,7 +12,8 @@ const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user }) => {
   return (
     <>
       <tr>
-        <td>{_id}</td>
+        <td>10</td>
+        {/* <td>{_id}</td> */}
         {/* If User has a profile picutre then implement */}
         {/* If Not then give them a placeholder picture */}
         <td>
@@ -22,6 +23,7 @@ const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user }) => {
         </td>
         <td>{displayName}</td>
         <td>{email}</td>
+        <td>100</td>
       </tr>
     </>
   );
