@@ -11,22 +11,6 @@ handler.get(async (req, res) => {
 
   //Partial Search engine;
 
-  //   const user = await User.aggregate([
-  //     {
-  //       $search: {
-  //         text: {
-  //           query: ["leon"],
-  //           path: "displayName",
-  //             fuzzy: {
-  //               maxEdits: 2,
-  //               prefixLength: 3,
-  //             },
-  //         },
-  //         highlight: { path: "displayName" },
-  //       },
-  //     },
-  //   ]);
-
   const { q } = req.query;
 
   const user = await User.aggregate([
