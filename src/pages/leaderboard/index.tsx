@@ -39,9 +39,8 @@ const Leaderboard: React.FC = () => {
         <Box as="table" w="full" cellPadding={20} textAlign="left">
           <tr>
             <th>Rank #</th>
-            <th></th>
             <th>
-              <Text mr="200px" ml="250px">
+              <Text paddingRight="20px" paddingLeft="250px">
                 Name
               </Text>
             </th>
