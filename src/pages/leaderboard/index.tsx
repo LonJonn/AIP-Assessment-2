@@ -2,7 +2,7 @@ import React from "react";
 import useSWR from "swr";
 import { EmbeddedUserSchema } from "models/User";
 import { ApiError } from "lib/errorHandler";
-import { Container, Heading, Box, Divider, Grid, SimpleGrid } from "@chakra-ui/core";
+import { Container, Heading, Box, Divider, Grid, SimpleGrid, Text } from "@chakra-ui/core";
 import LeaderboardRow from "components/leaderboard/LeaderboardRow";
 import { database } from "firebase";
 
@@ -39,9 +39,15 @@ const Leaderboard: React.FC = () => {
         <Box as="table" w="full" cellPadding={20} textAlign="left">
           <tr>
             <th>Rank #</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th># of Completed Favours</th>
+            <th></th>
+            <th>
+              <Text mr="200px" ml="250px">
+                Name
+              </Text>
+            </th>
+            <th>
+              <Text>Points</Text>
+            </th>
           </tr>
         </Box>
         <Divider borderColor="red.200" />

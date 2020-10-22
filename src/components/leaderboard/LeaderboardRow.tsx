@@ -22,8 +22,7 @@ const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user }) => {
           </Wrap>
         </td>
         <td>{displayName}</td>
-        <td>{email}</td>
-        <td>100</td>
+        <td>0</td>
       </tr>
     </>
   );
