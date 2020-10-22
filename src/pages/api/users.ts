@@ -4,21 +4,12 @@ import { User } from "models";
 const handler = createHandler();
 
 handler.get(async (req, res) => {
-  // api/users?q=le
-  // get q
-  // search mongo for use with name OR email containing q (using mongo text index)
-  // return array of matching users (res.json(users))
-
-  //Partial Search engine;
-
-  const { q } = req.query;
-
-  const user = await User.aggregate([
+  const foundUsers = await User.aggregate([
     {
       $search: {
         autocomplete: {
           path: "displayName",
-          query: q,
+          query: req.query.q,
         },
       },
     },
@@ -27,13 +18,14 @@ handler.get(async (req, res) => {
     },
     {
       $project: {
-        _id: 0,
-        email: 1,
+        _id: 1,
         displayName: 1,
+        photoURL: 1,
       },
     },
   ]);
 
-  res.json(user);
+  res.json(foundUsers);
 });
+
 export default handler;
