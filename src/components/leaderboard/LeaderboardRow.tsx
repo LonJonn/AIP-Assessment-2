@@ -4,27 +4,26 @@ import { EmbeddedUserSchema } from "models/User";
 
 interface LeaderboardRowProps {
   user: EmbeddedUserSchema;
+  rank: number;
 }
 
-const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user }) => {
-  const { _id, displayName, email, photoURL } = user;
+const LeaderboardRow: React.FC<LeaderboardRowProps> = ({ user, rank }) => {
+  const { _id, displayName, email, photoURL, points } = user;
 
   return (
-    <>
-      <tr>
-        <td>1</td>
-        {/* <td>{_id}</td> */}
-        {/* If User has a profile picutre then implement */}
-        {/* If Not then give them a placeholder picture */}
-        <td>
-          <Wrap>
-            <Avatar name={displayName} src={photoURL} />
-          </Wrap>
-        </td>
-        <td>{displayName}</td>
-        <td>0</td>
-      </tr>
-    </>
+    <tr>
+      <td>{rank}</td>
+      {/* <td>{_id}</td> */}
+      {/* If User has a profile picutre then implement */}
+      {/* If Not then give them a placeholder picture */}
+      <td>
+        <Wrap>
+          <Avatar name={displayName} src={photoURL} />
+        </Wrap>
+      </td>
+      <td>{displayName}</td>
+      <td>{points}</td>
+    </tr>
   );
 };
 

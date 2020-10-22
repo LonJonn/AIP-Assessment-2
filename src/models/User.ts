@@ -19,15 +19,11 @@ export class UserSchema extends TimeStamps {
   @prop()
   public photoURL?: string;
 
-  public asEmbedded(this: DocumentType<UserSchema>): EmbeddedUserSchema {
-    const { _id, email, displayName, photoURL } = this;
+  @prop()
+  public points!: number;
 
-    return {
-      _id,
-      email,
-      displayName,
-      photoURL,
-    };
+  public asEmbedded(this: DocumentType<UserSchema>): EmbeddedUserSchema {
+    return this.toJSON();
   }
 }
 
@@ -47,6 +43,9 @@ export class EmbeddedUserSchema {
 
   @prop()
   public photoURL?: string;
+
+  @prop()
+  public points!: number;
 }
 
 export default User;

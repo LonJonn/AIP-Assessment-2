@@ -33,6 +33,9 @@ handler.post(upload.single("evidence"), async (req, res) => {
     });
   });
 
+  recipient.points += 3;
+  await recipient.save();
+
   res.status(204).end();
 });
 

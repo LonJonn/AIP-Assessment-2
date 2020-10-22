@@ -3,7 +3,7 @@ import { authMiddleware } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import createValidator from "lib/validator";
 import { favourValidation } from "lib/validator/schemas";
-import { Favour } from "models";
+import { Favour, User } from "models";
 
 const handler = createHandler();
 const validate = createValidator(favourValidation);
@@ -15,6 +15,10 @@ handler.post(authMiddleware, async (req, res) => {
 
   const favour = await Favour.findById(id);
   if (!favour) throw new ApiError(400, "No Favour with that ID exists.");
+
+  const user = await User.findById(req.userId);
+  user.points += 1;
+  await user.save();
 
   // Update local favour object then write to db
   favour.set({ evidence });

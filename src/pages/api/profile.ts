@@ -34,6 +34,7 @@ handler.post(authMiddleware, async (req, res) => {
     email: email!,
     displayName: displayName!,
     photoURL,
+    points: 0,
   });
 
   res.status(201).json(newUser);
