@@ -27,12 +27,14 @@ handler.get(async (req, res) => {
   //     },
   //   ]);
 
+  const { q } = req.query;
+
   const user = await User.aggregate([
     {
       $search: {
         autocomplete: {
           path: "displayName",
-          query: "leo",
+          query: q,
         },
       },
     },
