@@ -70,9 +70,9 @@ function authContextHook() {
 
   async function signInWithGoogle() {
     const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const { additionalUserInfo } = await firebase.auth().signInWithPopup(googleProvider);
+    const { user, additionalUserInfo } = await firebase.auth().signInWithPopup(googleProvider);
 
-    if (additionalUserInfo?.isNewUser) await createProfile(accessToken);
+    if (additionalUserInfo?.isNewUser) await createProfile(await user.getIdToken());
 
     Router.push("/");
   }
