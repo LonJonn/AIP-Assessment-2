@@ -14,9 +14,14 @@ const Home: React.FC = () => {
           mode: {colorMode}
         </Button>
       </p>
+      <p>
+        <Link href="/login">
+          <a>login</a>
+        </Link>
+      </p>
 
-      <Link href="/login">
-        <a>login</a>
+      <Link href="/favour/create">
+        <a>Create Favour</a>
       </Link>
       <Link href="/test">
         <a>Test</a>

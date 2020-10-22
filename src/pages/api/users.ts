@@ -1,15 +1,32 @@
-import { admin } from "lib/firebase/admin";
-import { authMiddleware } from "lib/middleware";
-import { User } from "models";
-import { ApiError } from "lib/errorHandler";
 import createHandler from "lib/routeHandler";
+import { User } from "models";
 
 const handler = createHandler();
 
-// ==================== User Profile ====================
-
 handler.get(async (req, res) => {
-  const user = await User.find();
-  res.json(user);
+  const foundUsers = await User.aggregate([
+    {
+      $search: {
+        autocomplete: {
+          path: "displayName",
+          query: req.query.q,
+        },
+      },
+    },
+    {
+      $limit: 10,
+    },
+    {
+      $project: {
+        _id: 1,
+        displayName: 1,
+        photoURL: 1,
+        email: 1,
+      },
+    },
+  ]);
+
+  res.json(foundUsers);
 });
+
 export default handler;

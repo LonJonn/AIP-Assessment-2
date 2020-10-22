@@ -39,5 +39,8 @@ export default async function fetcher(path: string, accessToken?: string, init: 
     throw error;
   }
 
-  return await res.json();
+  // Check if response has JSON body
+  const hasJSON = res.headers.get("Content-Type")?.includes("json");
+
+  return hasJSON && (await res.json());
 }
