@@ -8,6 +8,26 @@ import theme from "../theme";
 import type { AppProps } from "next/app";
 import Header from "@/components/layout/header";
 
+/**
+ * Add global serializer for Mongo Object IDs
+ */
+
+import SuperJSON from "superjson";
+import { Types } from "mongoose";
+
+SuperJSON.registerCustom<Types.ObjectId, string>(
+  {
+    isApplicable: (v): v is Types.ObjectId => v instanceof Types.ObjectId,
+    serialize: (v) => v.toHexString(),
+    deserialize: (v) => new Types.ObjectId(v),
+  },
+  "objectid"
+);
+
+/**
+ * Main App Component
+ */
+
 const App: React.FC<AppProps> = ({ Component, pageProps }) => (
   <>
     <Head>
