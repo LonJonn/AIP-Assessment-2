@@ -5,9 +5,9 @@ import constate from "constate";
 import nookies from "nookies";
 import fetcher from "lib/fetcher";
 
-function authContextHook() {
+function authContextHook({ sessionToken = null }) {
   const [user, setUser] = useState<firebase.User>();
-  const [accessToken, setAccessToken] = useState<string>();
+  const [accessToken, setAccessToken] = useState<string>(sessionToken);
 
   const Router = useRouter();
 
