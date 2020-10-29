@@ -63,7 +63,34 @@ handler.post(authMiddleware, async (req, res) => {
     initialEvidence,
   });
 
-  res.status(201).json(newFavour);
+  // Party Detection
+  const createAdjList = async () => {
+    const allFavours = await Favour.find();
+
+    const adjList = new Map<string, string[]>();
+    allFavours.forEach((favour) => {
+      if (!adjList.get(favour.debtor._id)) {
+        adjList.set(favour.debtor._id, []);
+        adjList.get(favour.debtor._id).push(favour.recipient._id);
+      }
+      adjList.get(favour.debtor._id).push(favour.recipient._id);
+    });
+    return adjList;
+  };
+
+  const adjList = await createAdjList();
+  adjList.forEach((value, key) => {
+    // Remove duplicate data from array
+    const reducedValue = value.reduce(function (accumulator, currentValue) {
+      if (accumulator.indexOf(currentValue) === -1) {
+        accumulator.push(currentValue);
+      }
+      return accumulator;
+    }, []);
+
+    console.log(key, reducedValue);
+  });
+  res.status(201).json({ newFavour, adjList });
 });
 
 export default handler;
