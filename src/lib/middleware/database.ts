@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
-import { NextApiRequest, NextApiResponse } from "next";
-import { RequestHandler } from "next-connect";
+import { NextHandler } from "next-connect";
 
 const initDatabase = () =>
   mongoose
@@ -14,10 +13,14 @@ const initDatabase = () =>
       console.info("Connected to DB! 😊");
     });
 
-const withDatabase: RequestHandler<NextApiRequest, NextApiResponse> = async (req, res, next) => {
+/**
+ * Middleware to establish a DB connection that can be called within getStaticProps/getServerSideProps
+ * or including as next-connect middleware within a route handler.
+ */
+const withDatabase = async (req?, res?, next?: NextHandler) => {
   if (!mongoose.connection.readyState) await initDatabase();
 
-  return next();
+  next?.();
 };
 
 export default withDatabase;
