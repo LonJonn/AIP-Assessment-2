@@ -2,7 +2,7 @@ import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult
 import nookies from "nookies";
 import { firebaseAdmin } from "./firebase/admin";
 
-type session = { token: string };
+type session = { token: string; uid: string };
 
 type InnerHanlder = (
   ctx: GetServerSidePropsContext,
@@ -13,10 +13,11 @@ export default function withServerSideAuth(inner?: InnerHanlder): GetServerSideP
   return async function (ctx) {
     try {
       const { "pinky-auth": sessionToken } = nookies.get(ctx);
-      await firebaseAdmin.auth().verifyIdToken(sessionToken);
+      const { uid } = await firebaseAdmin.auth().verifyIdToken(sessionToken);
 
       const session = {
         token: sessionToken,
+        uid,
       };
 
       let authenticatedSSRProps = { props: { session } };
