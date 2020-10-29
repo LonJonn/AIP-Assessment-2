@@ -9,7 +9,7 @@ function authContextHook({ sessionToken = null }) {
   const [user, setUser] = useState<firebase.User>();
   const [accessToken, setAccessToken] = useState<string>(sessionToken);
 
-  const Router = useRouter();
+  const router = useRouter();
 
   /**
    * Update user state whenever firebase auth state changes.
@@ -54,14 +54,14 @@ function authContextHook({ sessionToken = null }) {
     await fetcher("/api/profile", accessToken, { method: "POST" });
 
     // Push to main page once complete
-    Router.push("/");
+    router.push("/");
 
     return user;
   }
 
   async function signIn(email: string, pass: string) {
     await firebase.auth().signInWithEmailAndPassword(email, pass);
-    Router.push("/");
+    router.push("/");
   }
 
   async function signInWithGoogle() {
@@ -73,11 +73,11 @@ function authContextHook({ sessionToken = null }) {
       await fetcher("/api/profile", accessToken, { method: "POST" });
     }
 
-    Router.push("/");
+    router.push("/");
   }
 
   async function signOut() {
-    Router.push("/");
+    router.push("/");
     await firebase.auth().signOut();
   }
 
