@@ -28,7 +28,7 @@ SuperJSON.registerCustom<Types.ObjectId, string>(
  * Main App Component
  */
 const App: React.FC<AppProps> = ({ Component, pageProps }) => {
-  const sessionToken = pageProps.json?.token;
+  const session = pageProps.json?.session;
 
   return (
     <>
@@ -37,7 +37,7 @@ const App: React.FC<AppProps> = ({ Component, pageProps }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <AuthProvider sessionToken={sessionToken}>
+      <AuthProvider sessionToken={session?.token}>
         <SWRConfig value={{ fetcher }}>
           <ChakraProvider resetCSS theme={theme}>
             <Header />
