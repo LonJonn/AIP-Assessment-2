@@ -62,6 +62,9 @@ const Login: React.FC = () => {
     try {
       await signInWithGoogle();
     } catch (error) {
+      // Ignore popup closed errors
+      if (error.code === "auth/popup-closed-by-user") return;
+
       const errMsg = isServerError(error) ? error.errors[0].message : "Something went wrong.";
       errorToast(errMsg);
     }

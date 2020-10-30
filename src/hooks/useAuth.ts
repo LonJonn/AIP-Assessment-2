@@ -4,6 +4,7 @@ import { firebase } from "lib/firebase/client";
 import constate from "constate";
 import nookies from "nookies";
 import fetcher from "lib/fetcher";
+import { useToast } from "@chakra-ui/core";
 
 function authContextHook() {
   const [loading, setLoading] = useState<boolean>(true);
@@ -11,6 +12,15 @@ function authContextHook() {
   const [accessToken, setAccessToken] = useState<string>();
 
   const router = useRouter();
+
+  const toast = useToast();
+  function showLoggedInToast(name: string) {
+    toast({
+      status: "success",
+      title: `Welcome, ${name.split(" ")[0]}! 🥰`,
+      position: "bottom-right",
+    });
+  }
 
   /**
    * Update access token whenever token refreshes or auth state changes.
@@ -53,14 +63,17 @@ function authContextHook() {
     const accessToken = await user.getIdToken();
     await fetcher("/api/profile", accessToken, { method: "POST" });
 
-    router.push((router.query.redirect as string) || "/");
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signIn(email: string, pass: string) {
     setLoading(true);
 
-    await firebase.auth().signInWithEmailAndPassword(email, pass);
-    router.push((router.query.redirect as string) || "/");
+    const { user } = await firebase.auth().signInWithEmailAndPassword(email, pass);
+
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signInWithGoogle() {
@@ -74,13 +87,20 @@ function authContextHook() {
       await fetcher("/api/profile", accessToken, { method: "POST" });
     }
 
-    router.push((router.query.redirect as string) || "/");
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signOut() {
     setLoading(true);
 
-    router.push("/login");
+    await router.push("/login");
+    toast({
+      status: "success",
+      title: "You are now logged out.",
+      position: "bottom-right",
+    });
+
     await firebase.auth().signOut();
   }
 
