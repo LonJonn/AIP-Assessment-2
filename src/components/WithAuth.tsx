@@ -1,4 +1,4 @@
-import { toast, useToast } from "@chakra-ui/core";
+import { useToast } from "@chakra-ui/core";
 import { useAuth } from "hooks/useAuth";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -16,7 +16,7 @@ const withAuth = (WrappedComponent) => {
           title: "You must be logged in to view to page!",
         });
 
-        router.push("/login");
+        router.push("/login?redirect=" + router.pathname);
       }
     }, [loading, accessToken, router]);
 

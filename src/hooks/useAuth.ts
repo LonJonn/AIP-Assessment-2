@@ -53,17 +53,14 @@ function authContextHook() {
     const accessToken = await user.getIdToken();
     await fetcher("/api/profile", accessToken, { method: "POST" });
 
-    // Push to main page once complete
-    router.push("/");
-
-    return user;
+    router.push((router.query.redirect as string) || "/");
   }
 
   async function signIn(email: string, pass: string) {
     setLoading(true);
 
     await firebase.auth().signInWithEmailAndPassword(email, pass);
-    router.push("/");
+    router.push((router.query.redirect as string) || "/");
   }
 
   async function signInWithGoogle() {
@@ -77,13 +74,13 @@ function authContextHook() {
       await fetcher("/api/profile", accessToken, { method: "POST" });
     }
 
-    router.push("/");
+    router.push((router.query.redirect as string) || "/");
   }
 
   async function signOut() {
     setLoading(true);
 
-    router.push("/");
+    router.push("/login");
     await firebase.auth().signOut();
   }
 
