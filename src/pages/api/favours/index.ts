@@ -4,6 +4,7 @@ import createHandler from "lib/routeHandler";
 import { Favour, User } from "models";
 import { favourValidation } from "lib/validator/schemas";
 import createValidator from "lib/validator";
+import { mapArrayOptions } from "@typegoose/typegoose/lib/internal/utils";
 
 const handler = createHandler();
 const validate = createValidator(favourValidation);
@@ -66,30 +67,64 @@ handler.post(authMiddleware, async (req, res) => {
   // Party Detection
   const createAdjList = async () => {
     const allFavours = await Favour.find();
-
     const adjList = new Map<string, string[]>();
+
     allFavours.forEach((favour) => {
-      if (!adjList.get(favour.debtor._id)) {
-        adjList.set(favour.debtor._id, []);
-        adjList.get(favour.debtor._id).push(favour.recipient._id);
+      let owedList = adjList.get(favour.debtor._id);
+      if (!owedList) {
+        owedList = [];
+        adjList.set(favour.debtor._id, owedList);
       }
-      adjList.get(favour.debtor._id).push(favour.recipient._id);
+
+      const recipientExists = owedList.some((recipientId) => recipientId === favour.recipient._id);
+      if (!recipientExists) owedList.push(favour.recipient._id);
     });
+
     return adjList;
   };
 
   const adjList = await createAdjList();
-  adjList.forEach((value, key) => {
-    // Remove duplicate data from array
-    const reducedValue = value.reduce(function (accumulator, currentValue) {
-      if (accumulator.indexOf(currentValue) === -1) {
-        accumulator.push(currentValue);
-      }
-      return accumulator;
-    }, []);
 
-    console.log(key, reducedValue);
-  });
+  // =================== Detect Cycle by DFS =====================
+
+  // Referenced: https://hackernoon.com/the-javascript-developers-guide-to-graphs-and-detecting-cycles-in-them-96f4f619d563
+
+  const parents = [];
+  const detectCycle = async () => {
+    const graphNodes = Array.from(adjList.keys());
+    const visited = {};
+    const recStack = {};
+
+    for (let i = 0; i < graphNodes.length; i++) {
+      const node = graphNodes[i];
+      if (_detectCycleUtil(node, visited, recStack)) return parents;
+    }
+    return "NO LOOPITY LOOP 😖😖";
+  };
+
+  const _detectCycleUtil = async (vertex, visited, recStack) => {
+    if (!visited[vertex]) {
+      visited[vertex] = true;
+      recStack[vertex] = true;
+      const nodeNeighbours = adjList.get(vertex);
+      for (let i = 0; i < nodeNeighbours.length; i++) {
+        const currentNode = nodeNeighbours[i];
+        parents.push(vertex);
+        if (!visited[currentNode] && _detectCycleUtil(currentNode, visited, recStack)) {
+          return true;
+        } else if (recStack[currentNode]) {
+          return true;
+        }
+      }
+    }
+    recStack[vertex] = false;
+    return false;
+  };
+
+  const detectCycleResult = await detectCycle();
+
+  console.log(detectCycleResult);
+
   res.status(201).json({ newFavour, adjList });
 });
 
