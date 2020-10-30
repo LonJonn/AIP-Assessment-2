@@ -5,24 +5,20 @@ import constate from "constate";
 import nookies from "nookies";
 import fetcher from "lib/fetcher";
 
-function authContextHook({ sessionToken = null }) {
+function authContextHook() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<firebase.User>();
-  const [accessToken, setAccessToken] = useState<string>(sessionToken);
+  const [accessToken, setAccessToken] = useState<string>();
 
   const router = useRouter();
-
-  /**
-   * Update user state whenever firebase auth state changes.
-   */
-  useEffect(() => {
-    return firebase.auth().onAuthStateChanged(setUser);
-  }, []);
 
   /**
    * Update access token whenever token refreshes or auth state changes.
    */
   useEffect(() => {
     return firebase.auth().onIdTokenChanged(async (user) => {
+      setUser(user);
+
       const accessToken = await user?.getIdToken();
       setAccessToken(accessToken);
 
@@ -35,12 +31,16 @@ function authContextHook({ sessionToken = null }) {
       } else {
         nookies.destroy(null, "pinky-auth");
       }
+
+      setLoading(false);
     });
   }, []);
 
   // =================== Auth Actions =====================
 
   async function signUp(email: string, pass: string, displayName: string) {
+    setLoading(true);
+
     // Create new fb Auth user
     const { user } = await firebase.auth().createUserWithEmailAndPassword(email, pass);
 
@@ -60,11 +60,15 @@ function authContextHook({ sessionToken = null }) {
   }
 
   async function signIn(email: string, pass: string) {
+    setLoading(true);
+
     await firebase.auth().signInWithEmailAndPassword(email, pass);
     router.push("/");
   }
 
   async function signInWithGoogle() {
+    setLoading(true);
+
     const googleProvider = new firebase.auth.GoogleAuthProvider();
     const { user, additionalUserInfo } = await firebase.auth().signInWithPopup(googleProvider);
 
@@ -77,11 +81,14 @@ function authContextHook({ sessionToken = null }) {
   }
 
   async function signOut() {
+    setLoading(true);
+
     router.push("/");
     await firebase.auth().signOut();
   }
 
   return {
+    loading,
     user,
     accessToken,
     signUp,

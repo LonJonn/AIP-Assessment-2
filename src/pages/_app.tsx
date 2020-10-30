@@ -27,26 +27,21 @@ SuperJSON.registerCustom<Types.ObjectId, string>(
 /**
  * Main App Component
  */
-const App: React.FC<AppProps> = ({ Component, pageProps }) => {
-  const session = pageProps.json?.session;
+const App: React.FC<AppProps> = ({ Component, pageProps }) => (
+  <>
+    <Head>
+      <title>Pinki</title>
+      <link rel="icon" href="/favicon.ico" />
+    </Head>
 
-  return (
-    <>
-      <Head>
-        <title>Pinki</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <AuthProvider sessionToken={session?.token}>
-        <SWRConfig value={{ fetcher }}>
-          <ChakraProvider resetCSS theme={theme}>
-            <Header />
-            <Component {...pageProps} />
-          </ChakraProvider>
-        </SWRConfig>
-      </AuthProvider>
-    </>
-  );
-};
-
+    <AuthProvider>
+      <SWRConfig value={{ fetcher }}>
+        <ChakraProvider resetCSS theme={theme}>
+          <Header />
+          <Component {...pageProps} />
+        </ChakraProvider>
+      </SWRConfig>
+    </AuthProvider>
+  </>
+);
 export default App;
