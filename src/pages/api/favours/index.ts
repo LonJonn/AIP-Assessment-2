@@ -68,7 +68,6 @@ handler.post(authMiddleware, async (req, res) => {
   const createAdjList = async () => {
     const allFavours = await Favour.find();
     const adjList = new Map<string, string[]>();
-
     allFavours.forEach((favour) => {
       let owedList = adjList.get(favour.debtor._id);
       if (!owedList) {
@@ -90,6 +89,7 @@ handler.post(authMiddleware, async (req, res) => {
   // Referenced: https://hackernoon.com/the-javascript-developers-guide-to-graphs-and-detecting-cycles-in-them-96f4f619d563
 
   const parents = [];
+
   const detectCycle = async () => {
     const graphNodes = Array.from(adjList.keys());
     const visited = {};
@@ -99,7 +99,6 @@ handler.post(authMiddleware, async (req, res) => {
       const node = graphNodes[i];
       if (_detectCycleUtil(node, visited, recStack)) return parents;
     }
-    return "NO LOOPITY LOOP 😖😖";
   };
 
   const _detectCycleUtil = async (vertex, visited, recStack) => {
@@ -125,7 +124,16 @@ handler.post(authMiddleware, async (req, res) => {
 
   console.log(detectCycleResult);
 
-  res.status(201).json({ newFavour, adjList });
+  const partyMembers = [];
+  detectCycleResult.forEach(async (userId) => {
+    const member = await User.findById(userId);
+    const memberName = member.displayName;
+    console.log(memberName);
+    partyMembers.push(memberName);
+  });
+  console.log(partyMembers);
+
+  res.status(201).json({ newFavour, partyMembers });
 });
 
 export default handler;
