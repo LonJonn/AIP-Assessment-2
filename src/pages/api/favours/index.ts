@@ -4,10 +4,7 @@ import createHandler from "lib/routeHandler";
 import { Favour, User } from "models";
 import { favourValidation } from "lib/validator/schemas";
 import createValidator from "lib/validator";
-import {
-  createArrayFromDimensions,
-  mapArrayOptions,
-} from "@typegoose/typegoose/lib/internal/utils";
+import PartyDetector from "lib/PartyDetector";
 
 const handler = createHandler();
 const validate = createValidator(favourValidation);
@@ -67,86 +64,10 @@ handler.post(authMiddleware, async (req, res) => {
     initialEvidence,
   });
 
-  // Party Detection
-  const createAdjList = async () => {
-    const allUsers = await User.find();
-    const allFavours = await Favour.find();
-    const adjList = new Map<string, string[]>();
-    allUsers.forEach((user) => {
-      adjList.set(user._id, []);
-    });
+  const partyDetector = await new PartyDetector(userData, recipientData).init();
+  const party = await partyDetector.findParty();
 
-    allFavours.forEach((favour) => {
-      let personOwing = favour.debtor._id;
-      let personReceiving = favour.recipient._id;
-      let owedList = adjList.get(personOwing);
-      const already = owedList.some((arrayElement) => personReceiving === arrayElement);
-      if (!already) {
-        owedList.push(personReceiving);
-        adjList.set(personOwing, owedList);
-      }
-    });
-
-    return adjList;
-  };
-
-  const adjList = await createAdjList();
-  console.log(Array.from(adjList.keys()));
-  console.log(Array.from(adjList.values()));
-
-  // =================== Detect Cycle by DFS =====================
-
-  // Referenced: https://hackernoon.com/the-javascript-developers-guide-to-graphs-and-detecting-cycles-in-them-96f4f619d563
-
-  const parents = [];
-
-  const detectCycle = async () => {
-    const visited = {};
-    const recStack = {};
-
-    const node = userData._id;
-    const result = await _detectCycleUtil(node, visited, recStack);
-    console.log(result);
-    if (result) {
-      return recStack;
-    } else return "There is no cycle";
-  };
-
-  const _detectCycleUtil = async (vertex, visited, recStack) => {
-    if (!visited[vertex]) {
-      visited[vertex] = true;
-      recStack[vertex] = true;
-      console.log("Visited: ", visited);
-      console.log("RecStack: ", recStack);
-      const nodeNeighbours = adjList.get(vertex);
-      for (let i = 0; i < nodeNeighbours.length; i++) {
-        const currentNode = nodeNeighbours[i];
-        parents.push(vertex);
-        if (!visited[currentNode] && (await _detectCycleUtil(currentNode, visited, recStack))) {
-          return true;
-        } else if (recStack[currentNode]) {
-          return true;
-        }
-      }
-    }
-    recStack[vertex] = false;
-    return false;
-  };
-
-  const detectCycleResult = await detectCycle();
-
-  console.log(detectCycleResult);
-
-  // const partyMembers = [];
-  // detectCycleResult.forEach(async (userId) => {
-  //   const member = await User.findById(userId);
-  //   const memberName = member.displayName;
-  //   console.log(memberName);
-  //   partyMembers.push(memberName);
-  // });
-  // console.log(partyMembers);
-
-  res.status(201).json({ newFavour });
+  res.status(201).json({ newFavour, party });
 });
 
 export default handler;
