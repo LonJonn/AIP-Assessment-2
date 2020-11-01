@@ -2,9 +2,9 @@ import createHandler from "lib/routeHandler";
 import multer from "multer";
 import { promises as fs } from "fs";
 import { Favour, Request, User } from "models";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 
-const handler = createHandler().use(authMiddleware);
+const handler = createHandler().use(authGuard);
 const upload = multer({ dest: "tmp/" });
 
 handler.post(upload.single("evidence"), async (req, res) => {

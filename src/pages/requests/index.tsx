@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import Head from "next/head";
 import { useRouter } from "next/router";
 import {
   Container,
@@ -14,10 +13,11 @@ import {
 } from "@chakra-ui/core";
 import { AddIcon, ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import Card from "components/request/Card";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import { ApiError } from "lib/errorHandler";
 import { RequestSchema } from "models/Request";
 import useSWR from "swr";
+import Layout from "components/layout/Layout";
 
 interface PaginatedRequests {
   requests: RequestSchema[];
@@ -43,11 +43,7 @@ const RequestList: React.FC = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title> Pinki | Requests</title>
-      </Head>
-
+    <Layout title="Requests">
       <Container maxW="4xl" centerContent>
         <HStack align="center" w="4xl" px={16}>
           <Heading size="xl" my="8">
@@ -112,7 +108,7 @@ const RequestList: React.FC = () => {
           </>
         )}
       </Container>
-    </>
+    </Layout>
   );
 };
 

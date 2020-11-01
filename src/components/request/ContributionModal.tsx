@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/core";
 import RewardList from "components/reward/RewardList";
 import { useRewardList } from "hooks/useRewardList";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import fetcher from "lib/fetcher";
 import { Rewards } from "models/Request";
 

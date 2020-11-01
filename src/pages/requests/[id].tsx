@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useMemo } from "react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import {
@@ -9,30 +9,25 @@ import {
   Stack,
   Button,
   Text,
-  Container,
   SimpleGrid,
   HStack,
   Spacer,
   useDisclosure,
-  Input,
   useToast,
   Image,
 } from "@chakra-ui/core";
-import Router, { useRouter } from "next/router";
+import { useRouter } from "next/router";
 import { RequestSchema } from "models/Request";
-import RewardCube from "@/components/reward/RewardCube";
-import { useAuth } from "lib/auth";
-import fetcher, { FetcherError } from "lib/fetcher";
-import DeleteAlert from "@/components/request/DeleteAlert";
-import RewardModal from "@/components/request/ContributionModal";
+import RewardCube from "components/reward/RewardCube";
+import { useAuth } from "hooks/useAuth";
+import fetcher from "lib/fetcher";
+import DeleteAlert from "components/request/DeleteAlert";
+import RewardModal from "components/request/ContributionModal";
 import useSWR from "swr";
 import { NextPage } from "next";
-import { ApiError } from "lib/errorHandler";
 import { useForm } from "react-hook-form";
-import { RewardListProvider, useRewardList } from "hooks/useRewardList";
-import { yup } from "lib/validator";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { evidenceSchema } from "lib/validator/schemas";
+import { RewardListProvider } from "hooks/useRewardList";
+import Layout from "components/layout/Layout";
 
 dayjs.extend(relativeTime);
 
@@ -60,7 +55,7 @@ const RequestPage: NextPage<RequestPageProps> = ({ initRequest }) => {
   const { isOpen: isOpenRM, onOpen, onClose: onCloseRM } = useDisclosure();
 
   //Add Evidence Form
-  const { register, handleSubmit, errors } = useForm({ resolver: yupResolver(evidenceSchema) });
+  const { register, handleSubmit, errors } = useForm();
 
   const { owner, title, createdAt, description, contributions, isClaimed } = request;
 
@@ -102,7 +97,7 @@ const RequestPage: NextPage<RequestPageProps> = ({ initRequest }) => {
   }, [contributions]);
 
   return (
-    <Container maxW="50rem" mt={24}>
+    <Layout>
       <Stack direction="column" spacing={10}>
         <Stack mb={18}>
           <Heading size="xl">{title}</Heading>
@@ -191,7 +186,7 @@ const RequestPage: NextPage<RequestPageProps> = ({ initRequest }) => {
           initRewards={contributions[user?.uid]?.rewards}
         />
       </RewardListProvider>
-    </Container>
+    </Layout>
   );
 };
 

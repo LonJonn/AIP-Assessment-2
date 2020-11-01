@@ -1,5 +1,5 @@
 import { ApiError } from "lib/errorHandler";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import createValidator from "lib/validator";
 import Request from "models/Request";
@@ -21,7 +21,7 @@ handler.get(async (req, res) => {
 
 // ==================== Update Request Details ====================
 
-handler.put(authMiddleware, async (req, res) => {
+handler.put(authGuard, async (req, res) => {
   const { id, ...updateBody } = await validate(req);
 
   const request = await Request.findById(id);
@@ -40,7 +40,7 @@ handler.put(authMiddleware, async (req, res) => {
 
 // ==================== Delete Request ====================
 
-handler.delete(authMiddleware, async (req, res) => {
+handler.delete(authGuard, async (req, res) => {
   const { id } = await validate(req);
 
   const request = await Request.findById(id);

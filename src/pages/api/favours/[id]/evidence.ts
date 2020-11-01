@@ -1,5 +1,5 @@
 import { ApiError } from "lib/errorHandler";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import createValidator from "lib/validator";
 import { favourValidation } from "lib/validator/schemas";
@@ -10,7 +10,7 @@ const validate = createValidator(favourValidation);
 
 // =================== Submitting evidence =====================
 
-handler.post(authMiddleware, async (req, res) => {
+handler.post(authGuard, async (req, res) => {
   const { id, evidence } = await validate(req);
 
   const favour = await Favour.findById(id);

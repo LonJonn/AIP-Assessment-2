@@ -1,5 +1,5 @@
 import { Avatar, Box, Button, Collapse, Flex, Stack, Text } from "@chakra-ui/core";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import { UserSchema } from "models/User";
 
 /**

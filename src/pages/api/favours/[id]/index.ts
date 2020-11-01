@@ -1,5 +1,5 @@
 import { ApiError } from "lib/errorHandler";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import createValidator from "lib/validator";
 import { favourValidation } from "lib/validator/schemas";
@@ -10,7 +10,7 @@ const validate = createValidator(favourValidation);
 
 // =================== Read single request =====================
 
-handler.get(authMiddleware, async (req, res) => {
+handler.get(authGuard, async (req, res) => {
   const { id } = await validate(req);
 
   const favour = await Favour.findById(id);
@@ -25,7 +25,7 @@ handler.get(authMiddleware, async (req, res) => {
 
 // =================== Update favour =====================
 
-handler.put(authMiddleware, async (req, res) => {
+handler.put(authGuard, async (req, res) => {
   const { id, rewards } = await validate(req, "updateFavour");
 
   const favour = await Favour.findById(id);
@@ -43,7 +43,7 @@ handler.put(authMiddleware, async (req, res) => {
 
 // =================== Delete favour =====================
 
-handler.delete(authMiddleware, async (req, res) => {
+handler.delete(authGuard, async (req, res) => {
   const { id } = await validate(req);
 
   const favour = await Favour.findById(id);

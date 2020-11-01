@@ -12,4 +12,4 @@ if (!admin.apps.length) {
   });
 }
 
-export { admin };
+export { admin as firebaseAdmin };

@@ -1,10 +1,4 @@
-import { ErrorResponse } from "lib/errorHandler";
-
-export interface FetcherError {
-  status: number;
-  statusText: string;
-  details?: ErrorResponse;
-}
+import { ServerError, isServerError } from "lib/errorHandler";
 
 /**
  * Client-side fetcher for use with SWR or a one-off fetch.
@@ -21,26 +15,24 @@ export default async function fetcher(path: string, accessToken?: string, init: 
   };
 
   const res = await fetch(path, init);
+  const hasJSON = res.headers.get("Content-Type")?.includes("json");
 
   // If the request resulted in bad response (i.e. not 200 - 299)
   if (!res.ok) {
     // If response has JSON, get error details
-    const contentType = res.headers.get("Content-Type") || "";
-    const details = contentType.includes("json") ? await res.json() : null;
+    const errorDetails = hasJSON ? await res.json() : {};
 
-    // Construct Fetcher Error
-    const error: FetcherError = {
-      status: res.status,
-      statusText: res.statusText,
-      details,
-    };
+    // Throw if server error
+    if (isServerError(errorDetails)) throw errorDetails;
 
-    // Throw the error to be caught by either SWR or any try/catch blocks
-    throw error;
+    // Otherwise construct generic error
+    throw {
+      status: "error",
+      type: "unknown",
+      statusCode: res.status,
+      errors: [{ message: res.statusText }],
+    } as ServerError;
   }
-
-  // Check if response has JSON body
-  const hasJSON = res.headers.get("Content-Type")?.includes("json");
 
   return hasJSON && (await res.json());
 }

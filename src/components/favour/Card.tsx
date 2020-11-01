@@ -1,10 +1,10 @@
 import React from "react";
 import NextLink from "next/link";
-import { Flex, Spacer, Text } from "@chakra-ui/core";
+import { Flex, Spacer, Text, useColorModeValue } from "@chakra-ui/core";
 import { FavourSchema } from "models/Favour";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 
 dayjs.extend(relativeTime);
 

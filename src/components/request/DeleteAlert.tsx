@@ -8,7 +8,7 @@ import {
   Button,
   useToast,
 } from "@chakra-ui/core";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import fetcher from "lib/fetcher";
 import { Types } from "mongoose";
 import { useRouter } from "next/router";

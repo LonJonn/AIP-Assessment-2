@@ -1,12 +1,13 @@
 import React from "react";
 import Link from "next/link";
 import { Button, useColorMode } from "@chakra-ui/core";
+import Layout from "components/layout/Layout";
 
 const Home: React.FC = () => {
   const { colorMode, toggleColorMode } = useColorMode();
 
   return (
-    <div>
+    <Layout title="Home">
       <main>Main content here</main>
 
       <p>
@@ -28,7 +29,7 @@ const Home: React.FC = () => {
       </Link>
 
       <footer>Footer content here</footer>
-    </div>
+    </Layout>
   );
 };
 

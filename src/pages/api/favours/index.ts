@@ -1,5 +1,5 @@
 import { NoUserError, ApiError } from "lib/errorHandler";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import { Favour, User } from "models";
 import { favourValidation } from "lib/validator/schemas";
@@ -11,7 +11,7 @@ const validate = createValidator(favourValidation);
 
 // =================== Get User Favours =====================
 
-handler.get(authMiddleware, async (req, res) => {
+handler.get(authGuard, async (req, res) => {
   let { page = 1, limit = 6, q } = req.query;
   page = Number(page);
   limit = Number(limit);
@@ -33,7 +33,7 @@ handler.get(authMiddleware, async (req, res) => {
 
 // =================== Create Favour =====================
 
-handler.post(authMiddleware, async (req, res) => {
+handler.post(authGuard, async (req, res) => {
   const { debtor, recipient, rewards, initialEvidence } = await validate(req, "create");
 
   /**

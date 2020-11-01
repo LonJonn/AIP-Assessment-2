@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import Head from "next/head";
 import NextLink from "next/link";
 import {
   Button,
-  Container,
   Heading,
   IconButton,
   SimpleGrid,
@@ -17,11 +15,12 @@ import {
 } from "@chakra-ui/core";
 import { AddIcon, ArrowLeftIcon, ArrowRightIcon } from "@chakra-ui/icons";
 import FavourCard from "components/favour/Card";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import { ApiError } from "lib/errorHandler";
 import { FavourSchema } from "models/Favour";
 import useSWR from "swr";
 import { useRouter } from "next/router";
+import Layout from "components/layout/Layout";
 
 interface PaginatedFavours {
   favours: FavourSchema[];
@@ -116,46 +115,40 @@ const FavourList: React.FC = () => {
   );
 
   return (
-    <>
-      <Head>
-        <title> Pinki | Favours </title>
-      </Head>
+    <Layout title="Favours">
+      <Stack spacing={4} w="full">
+        <Stack direction="row" justify="space-between" align="center" mb={4}>
+          <Heading size="2xl">Favours</Heading>
 
-      <Container maxW="lg" mt={8}>
-        <Stack spacing={4} w="full">
-          <Stack direction="row" justify="space-between" align="center" mb={4}>
-            <Heading size="2xl">Favours</Heading>
-
-            <NextLink href={`favours/create?type=${filterQuery}`}>
-              <Button rightIcon={<AddIcon mb="2px" />}>Add</Button>
-            </NextLink>
-          </Stack>
-
-          {/* Tabs */}
-          <Tabs
-            onChange={(i) => setFilterQuery(i === 0 ? "owed" : "owing")}
-            colorScheme="primary"
-            isFitted
-          >
-            <TabList>
-              <Tab>Owed</Tab>
-              <Tab>Owing</Tab>
-            </TabList>
-          </Tabs>
-
-          {/* Favours */}
-          {!data ? (
-            <SimpleGrid columns={2} spacing={8}>
-              {[...Array(6)].map((_, i) => (
-                <Skeleton h={40} key={i} />
-              ))}
-            </SimpleGrid>
-          ) : (
-            <ListContent data={data} pageIndex={pageIndex} setPageIndex={setPageIndex} />
-          )}
+          <NextLink href={`favours/create?type=${filterQuery}`}>
+            <Button rightIcon={<AddIcon mb="2px" />}>Add</Button>
+          </NextLink>
         </Stack>
-      </Container>
-    </>
+
+        {/* Tabs */}
+        <Tabs
+          onChange={(i) => setFilterQuery(i === 0 ? "owed" : "owing")}
+          colorScheme="primary"
+          isFitted
+        >
+          <TabList>
+            <Tab>Owed</Tab>
+            <Tab>Owing</Tab>
+          </TabList>
+        </Tabs>
+
+        {/* Favours */}
+        {!data ? (
+          <SimpleGrid columns={2} spacing={8}>
+            {[...Array(6)].map((_, i) => (
+              <Skeleton h={40} key={i} />
+            ))}
+          </SimpleGrid>
+        ) : (
+          <ListContent data={data} pageIndex={pageIndex} setPageIndex={setPageIndex} />
+        )}
+      </Stack>
+    </Layout>
   );
 };
 

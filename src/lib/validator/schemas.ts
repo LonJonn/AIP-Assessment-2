@@ -28,6 +28,10 @@ const rewardSchema = yup.lazy((val) => {
   }
 });
 
+const mongoIdSchema = yup.string().when("$create", (create: boolean, schema: yup.StringSchema) => {
+  return create ? schema : schema.trim().required().isMongoID();
+});
+
 // =================== User =====================
 
 export const userValidation = yup.object({
@@ -53,12 +57,27 @@ export const userValidation = yup.object({
   photoURL: yup.string().url().optional().trim(),
 });
 
+// ==================== Favour ====================
+
+export const favourValidation = yup.object({
+  id: mongoIdSchema,
+  debtor: yup.string().formLabel("Debtor").when("$create", {
+    is: true,
+    then: yup.string().required(),
+  }),
+  recipient: yup.string().formLabel("Recipient").when("$create", {
+    is: true,
+    then: yup.string().required(),
+  }),
+  rewards: rewardSchema,
+  initialEvidence: yup.string(), // todo
+  evidence: yup.string(), // todo
+});
+
 // ==================== Request ====================
 
 export const requestValidation = yup.object({
-  id: yup.string().when("$create", (create: boolean, schema: yup.StringSchema) => {
-    return create ? schema : schema.trim().required().isMongoID();
-  }),
+  id: mongoIdSchema,
   title: yup.string().formLabel("Title").strict(true).trim().min(10).max(90).when("$create", {
     is: true,
     then: yup.string().required(),
@@ -74,49 +93,5 @@ export const requestValidation = yup.object({
       is: true,
       then: yup.string().required(),
     }),
-  rewards: yup.lazy((val) => {
-    if (typeof val === "object") {
-      const shape = {};
-
-      for (const key in val) {
-        shape[key] = yup.number().required().min(1);
-      }
-
-      return yup.object(shape).test("notEmpty", "${path} must not be empty", (val) => {
-        const rewards = Object.keys(val);
-        return rewards.length !== 0;
-      });
-    } else {
-      return yup.object().when("$create", {
-        is: true,
-        then: yup.object().required(),
-      });
-    }
-  }),
-});
-
-// ==================== Evidence  ====================
-
-export const evidenceSchema = yup.object({
-  evidence: yup.mixed().required("Please provide a file."),
-});
-
-// ==================== Favour ====================
-
-export const favourValidation = yup.object({
-  id: yup.string().when("$create", {
-    is: false,
-    then: yup.string().required().trim().isMongoID(),
-  }),
-  debtor: yup.string().formLabel("Debtor").when("$create", {
-    is: true,
-    then: yup.string().required(),
-  }),
-  recipient: yup.string().formLabel("Recipient").when("$create", {
-    is: true,
-    then: yup.string().required(),
-  }),
   rewards: rewardSchema,
-  initialEvidence: yup.string(), // todo
-  evidence: yup.string(), // todo
 });

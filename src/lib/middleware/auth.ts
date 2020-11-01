@@ -1,4 +1,4 @@
-import { admin } from "lib/firebase/admin";
+import { firebaseAdmin } from "lib/firebase/admin";
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { RequestHandler } from "next-connect";
 
@@ -18,7 +18,7 @@ const authMiddleware: RequestHandler<AuthenticatedRequest, NextApiResponse> = as
   }
 
   try {
-    const tokenPayload = await admin.auth().verifyIdToken(accessToken);
+    const tokenPayload = await firebaseAdmin.auth().verifyIdToken(accessToken);
     req.userId = tokenPayload.sub;
     next();
   } catch (error) {

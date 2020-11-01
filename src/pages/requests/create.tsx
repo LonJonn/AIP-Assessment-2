@@ -1,8 +1,6 @@
 import React, { useEffect } from "react";
-import Head from "next/head";
 import {
   Button,
-  Container,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -19,9 +17,11 @@ import { requestValidation } from "lib/validator/schemas";
 import { Rewards } from "models/Request";
 import { useForm } from "react-hook-form";
 import { RewardListProvider, useRewardList } from "hooks/useRewardList";
-import { useAuth } from "lib/auth";
-import fetcher, { FetcherError } from "lib/fetcher";
+import { useAuth } from "hooks/useAuth";
+import fetcher from "lib/fetcher";
 import { useRouter } from "next/router";
+import { ServerError } from "lib/errorHandler";
+import Layout from "components/layout/Layout";
 
 interface RequestFormData {
   title: string;
@@ -58,7 +58,7 @@ const CreateRequest: React.FC = () => {
       });
       router.push("/requests");
     } catch (error) {
-      (error as FetcherError).details.errors.forEach((err) => {
+      (error as ServerError).errors.forEach((err) => {
         toast({
           status: "error",
           title: "Uh oh...",
@@ -69,58 +69,53 @@ const CreateRequest: React.FC = () => {
   };
 
   return (
-    <>
-      <Head>
-        <title>Pinki | Create Request</title>
-      </Head>
+    <Layout title="Add Request" maxW="30rem" mt={16}>
+      <Heading size="2xl" textAlign="center" mb={8}>
+        Create Request
+      </Heading>
 
-      <Container maxW="4xl">
-        <Heading size="lg" my={6}>
-          Create Request
-        </Heading>
-        <Stack as="form" onSubmit={handleSubmit(createRequest)} spacing={8} align="start">
-          <FormControl isInvalid={!!formErrors.title}>
-            <FormLabel htmlFor="title">Title</FormLabel>
-            <Input name="title" id="title" placeholder="What to do" ref={register} />
-            <FormErrorMessage>{formErrors.title?.message}</FormErrorMessage>
-          </FormControl>
+      <Stack as="form" onSubmit={handleSubmit(createRequest)} spacing={8} align="start">
+        <FormControl isInvalid={!!formErrors.title}>
+          <FormLabel htmlFor="title">Title</FormLabel>
+          <Input name="title" id="title" placeholder="What to do" ref={register} />
+          <FormErrorMessage>{formErrors.title?.message}</FormErrorMessage>
+        </FormControl>
 
-          <FormControl isInvalid={!!formErrors.description}>
-            <FormLabel htmlFor="description">Description</FormLabel>
-            <Textarea
-              name="description"
-              id="description"
-              placeholder="Add Additional Information"
+        <FormControl isInvalid={!!formErrors.description}>
+          <FormLabel htmlFor="description">Description</FormLabel>
+          <Textarea
+            name="description"
+            id="description"
+            placeholder="Add Additional Information"
+            ref={register}
+          />
+          <FormErrorMessage>{formErrors.description?.message}</FormErrorMessage>
+        </FormControl>
+
+        <FormControl isInvalid={!!formErrors.rewards}>
+          <FormLabel htmlFor="rewards">Rewards</FormLabel>
+          {Object.keys(rewards).map((reward) => (
+            <Input
+              hidden
+              key={reward}
+              readOnly
+              name={`rewards.${reward}`}
+              id={`rewards.${reward}`}
+              value={rewards[reward]}
               ref={register}
             />
-            <FormErrorMessage>{formErrors.description?.message}</FormErrorMessage>
-          </FormControl>
+          ))}
+          <FormErrorMessage>{formErrors.rewards?.message}</FormErrorMessage>
+        </FormControl>
+        <Grid>
+          <RewardList />
+        </Grid>
 
-          <FormControl isInvalid={!!formErrors.rewards}>
-            <FormLabel htmlFor="rewards">Rewards</FormLabel>
-            {Object.keys(rewards).map((reward) => (
-              <Input
-                hidden
-                key={reward}
-                readOnly
-                name={`rewards.${reward}`}
-                id={`rewards.${reward}`}
-                value={rewards[reward]}
-                ref={register}
-              />
-            ))}
-            <FormErrorMessage>{formErrors.rewards?.message}</FormErrorMessage>
-          </FormControl>
-          <Grid>
-            <RewardList />
-          </Grid>
-
-          <Button type="submit" isLoading={formState.isSubmitting}>
-            Create
-          </Button>
-        </Stack>
-      </Container>
-    </>
+        <Button type="submit" colorScheme="primary" isLoading={formState.isSubmitting}>
+          Submit
+        </Button>
+      </Stack>
+    </Layout>
   );
 };
 

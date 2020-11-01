@@ -1,5 +1,5 @@
 import { NoUserError } from "lib/errorHandler";
-import { authMiddleware } from "lib/middleware";
+import { authGuard } from "lib/middleware";
 import createHandler from "lib/routeHandler";
 import createValidator from "lib/validator";
 import { Request, User } from "models";
@@ -27,7 +27,7 @@ handler.get(async (req, res) => {
 
 // ==================== Create Request ====================
 
-handler.post(authMiddleware, async (req, res) => {
+handler.post(authGuard, async (req, res) => {
   const { title, description, rewards } = await validate(req, "create");
 
   // Try to find user by their ID
