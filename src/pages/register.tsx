@@ -14,9 +14,11 @@ import {
   useToast,
 } from "@chakra-ui/core";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useAuth } from "lib/auth";
+import { useAuth } from "hooks/useAuth";
 import { userValidation } from "lib/validator/schemas";
 import { useForm } from "react-hook-form";
+import { isServerError } from "lib/errorHandler";
+import Layout from "components/layout/Layout";
 
 interface RegisterForm {
   displayName: string;
@@ -32,19 +34,7 @@ const Register: React.FC = () => {
     context: { form: true, create: true },
   });
 
-  // ==================== Toast 🍞 ====================
-
   const toast = useToast();
-
-  function errorToast(description: string, title = "Uh Oh...") {
-    toast({
-      title,
-      description,
-      status: "error",
-      duration: 10000,
-      isClosable: true,
-    });
-  }
 
   // ==================== Register ====================
 
@@ -52,64 +42,67 @@ const Register: React.FC = () => {
     try {
       await signUp(email, password, displayName);
     } catch (error) {
-      errorToast(error.message);
+      const errMsg = isServerError(error) ? error.errors[0].message : error.message;
+      toast({
+        title: "Uh Oh...",
+        description: errMsg || "Something went wrong...",
+        status: "error",
+        duration: 10000,
+        isClosable: true,
+      });
     }
   }
 
   return (
-    <>
-      <Head>
-        <title>Pinki | Register</title>
-      </Head>
+    <Layout title="Register" maxW="30rem" mt={16}>
+      <Heading size="2xl" textAlign="center" mb={8}>
+        Register
+      </Heading>
 
-      <Container maxW="30rem" mt={32}>
-        <Heading fontSize="6xl" textAlign="center" mb={8}>
-          Register
-        </Heading>
+      <Stack as="form" onSubmit={handleSubmit(createUser)} spacing={8}>
+        <FormControl isInvalid={!!formErrors.email}>
+          <FormLabel htmlFor="email">Email</FormLabel>
+          <Input id="email" name="email" ref={register} />
+          <FormErrorMessage>{formErrors.email?.message}</FormErrorMessage>
+        </FormControl>
 
-        <Stack as="form" onSubmit={handleSubmit(createUser)} spacing={8}>
-          <FormControl isInvalid={!!formErrors.email}>
-            <FormLabel htmlFor="email">Email</FormLabel>
-            <Input id="email" name="email" ref={register} />
-            <FormErrorMessage>{formErrors.email?.message}</FormErrorMessage>
-          </FormControl>
+        <FormControl isInvalid={!!formErrors.displayName}>
+          <FormLabel htmlFor="displayName">Display Name</FormLabel>
+          <Input id="displayName" name="displayName" ref={register} />
+          <FormErrorMessage>{formErrors.displayName?.message}</FormErrorMessage>
+        </FormControl>
 
-          <FormControl isInvalid={!!formErrors.displayName}>
-            <FormLabel htmlFor="displayName">Display Name</FormLabel>
-            <Input id="displayName" name="displayName" ref={register} />
-            <FormErrorMessage>{formErrors.displayName?.message}</FormErrorMessage>
-          </FormControl>
+        <FormControl isInvalid={!!formErrors.password}>
+          <FormLabel htmlFor="password">Password</FormLabel>
+          <Input id="password" name="password" ref={register} type="password" />
+          <FormErrorMessage>{formErrors.password?.message}</FormErrorMessage>
+        </FormControl>
 
-          <FormControl isInvalid={!!formErrors.password}>
-            <FormLabel htmlFor="password">Password</FormLabel>
-            <Input id="password" name="password" ref={register} type="password" />
-            <FormErrorMessage>{formErrors.password?.message}</FormErrorMessage>
-          </FormControl>
+        <FormControl isInvalid={!!formErrors.passwordRepeat}>
+          <FormLabel htmlFor="passwordRepeat">Password Repeat</FormLabel>
+          <Input id="passwordRepeat" name="passwordRepeat" ref={register} type="password" />
+          <FormErrorMessage>{formErrors.passwordRepeat?.message}</FormErrorMessage>
+        </FormControl>
 
-          <FormControl isInvalid={!!formErrors.passwordRepeat}>
-            <FormLabel htmlFor="passwordRepeat">Password Repeat</FormLabel>
-            <Input id="passwordRepeat" name="passwordRepeat" ref={register} type="password" />
-            <FormErrorMessage>{formErrors.passwordRepeat?.message}</FormErrorMessage>
-          </FormControl>
+        <Stack align="center" spacing={4}>
+          <Button
+            type="submit"
+            isLoading={formState.isSubmitting}
+            w="full"
+            size="lg"
+            colorScheme="primary"
+          >
+            Submit
+          </Button>
 
-          <Stack align="center" spacing={4}>
-            <Button
-              type="submit"
-              isLoading={formState.isSubmitting}
-              w="full"
-              size="lg"
-              colorScheme="primary"
-            >
-              Submit
-            </Button>
-
+          <NextLink href="/login" passHref>
             <Link as="span" color="red.300">
-              <NextLink href="/">Cancel</NextLink>
+              Cancel
             </Link>
-          </Stack>
+          </NextLink>
         </Stack>
-      </Container>
-    </>
+      </Stack>
+    </Layout>
   );
 };
 

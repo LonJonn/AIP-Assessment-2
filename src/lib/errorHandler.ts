@@ -2,6 +2,11 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { ValidationError } from "yup";
 import type { ErrorHandler } from "next-connect";
 
+// Utility Type Guard
+export function isServerError(error: Object): error is ServerError {
+  return error.hasOwnProperty("type") && error.hasOwnProperty("errors");
+}
+
 // =================== Custom Errors =====================
 
 /**
@@ -41,8 +46,8 @@ interface IError {
 /**
  * Format of errors returned from the server
  */
-export interface ErrorResponse {
-  type: "api" | "validation";
+export interface ServerError {
+  type: "api" | "validation" | "unknown";
   status: "error";
   statusCode: number;
   errors: IError[];
@@ -71,23 +76,24 @@ const errorHandler: ErrorHandler<NextApiRequest | any, NextApiResponse | any> = 
       status: "error",
       statusCode,
       errors,
-    } as ErrorResponse);
+    } as ServerError);
   }
 
   /**
    * Validation Errors
    */
   if (err instanceof ValidationError) {
-    const errors = err.inner.map((error) => ({
-      field: error.path,
-      message: error.message,
+    const errors = err.inner.map((vErr) => ({
+      field: vErr.path,
+      message: vErr.message,
     }));
+
     return res.status(400).json({
       type: "validation",
       status: "error",
       statusCode: 400,
       errors,
-    } as ErrorResponse);
+    } as ServerError);
   }
 
   /**

@@ -1,5 +1,5 @@
-import { admin } from "lib/firebase/admin";
-import { authMiddleware } from "lib/middleware";
+import { firebaseAdmin } from "lib/firebase/admin";
+import { authGuard } from "lib/middleware";
 import { User } from "models";
 import { ApiError } from "lib/errorHandler";
 import createHandler from "lib/routeHandler";
@@ -8,7 +8,7 @@ const handler = createHandler();
 
 // ==================== User Profile ====================
 
-handler.get(authMiddleware, async (req, res) => {
+handler.get(authGuard, async (req, res) => {
   const user = await User.findById(req.userId);
   res.json(user);
 });
@@ -20,8 +20,8 @@ handler.get(authMiddleware, async (req, res) => {
  * user first signs up on the website to finish creating their
  * account!
  */
-handler.post(authMiddleware, async (req, res) => {
-  let user = await admin.auth().getUser(req.userId);
+handler.post(authGuard, async (req, res) => {
+  let user = await firebaseAdmin.auth().getUser(req.userId);
   const { uid, email, displayName, photoURL } = user;
 
   // Don't create user account data twice
@@ -34,6 +34,7 @@ handler.post(authMiddleware, async (req, res) => {
     email: email!,
     displayName: displayName!,
     photoURL,
+    points: 0,
   });
 
   res.status(201).json(newUser);

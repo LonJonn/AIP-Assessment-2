@@ -14,6 +14,7 @@ node_modules
 
 # testing
 coverage
+RestClient/
 
 # next.js
 .next/
@@ -44,3 +45,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# RestClient
+RestClient/

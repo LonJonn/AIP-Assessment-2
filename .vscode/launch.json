@@ -1,15 +1,12 @@
 {
+  "version": "0.2.0",
   "configurations": [
     {
-      "name": "Debug Server",
-      "cwd": "${workspaceFolder}/server",
-      "program": "./src/app.ts",
-      "request": "launch",
-      "restart": true,
-      "runtimeExecutable": "nodemon",
+      "name": "Debug Next App",
+      "type": "node",
+      "request": "attach",
       "skipFiles": ["<node_internals>/**"],
-      "type": "pwa-node",
-      "outputCapture": "std"
+      "port": 9229
     }
   ]
 }

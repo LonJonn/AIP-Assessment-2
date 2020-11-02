@@ -19,34 +19,10 @@ export class UserSchema extends TimeStamps {
   @prop()
   public photoURL?: string;
 
-  public asEmbedded(this: DocumentType<UserSchema>): EmbeddedUserSchema {
-    const { _id, email, displayName, photoURL } = this;
-
-    return {
-      _id,
-      email,
-      displayName,
-      photoURL,
-    };
-  }
+  @prop()
+  public points!: number;
 }
 
 const User = getModelForClass(UserSchema);
-
-// ==================== Embedded User ====================
-
-export class EmbeddedUserSchema {
-  @prop()
-  public _id!: string;
-
-  @prop()
-  public email!: string;
-
-  @prop()
-  public displayName!: string;
-
-  @prop()
-  public photoURL?: string;
-}
 
 export default User;

@@ -4,29 +4,31 @@ import { firebase } from "lib/firebase/client";
 import constate from "constate";
 import nookies from "nookies";
 import fetcher from "lib/fetcher";
-
-async function createProfile(accessToken: string) {
-  return await fetcher("/api/profile", accessToken, { method: "POST" });
-}
+import { useToast } from "@chakra-ui/core";
 
 function authContextHook() {
+  const [loading, setLoading] = useState<boolean>(true);
   const [user, setUser] = useState<firebase.User>();
   const [accessToken, setAccessToken] = useState<string>();
 
-  const Router = useRouter();
+  const router = useRouter();
 
-  /**
-   * Update user state whenever firebase auth state changes.
-   */
-  useEffect(() => {
-    return firebase.auth().onAuthStateChanged(setUser);
-  }, []);
+  const toast = useToast();
+  function showLoggedInToast(name: string) {
+    toast({
+      status: "success",
+      title: `Welcome, ${name.split(" ")[0]}! 🥰`,
+      position: "bottom-right",
+    });
+  }
 
   /**
    * Update access token whenever token refreshes or auth state changes.
    */
   useEffect(() => {
     return firebase.auth().onIdTokenChanged(async (user) => {
+      setUser(user);
+
       const accessToken = await user?.getIdToken();
       setAccessToken(accessToken);
 
@@ -39,12 +41,16 @@ function authContextHook() {
       } else {
         nookies.destroy(null, "pinky-auth");
       }
+
+      setLoading(false);
     });
   }, []);
 
   // =================== Auth Actions =====================
 
   async function signUp(email: string, pass: string, displayName: string) {
+    setLoading(true);
+
     // Create new fb Auth user
     const { user } = await firebase.auth().createUserWithEmailAndPassword(email, pass);
 
@@ -55,34 +61,51 @@ function authContextHook() {
 
     // Create profile in database
     const accessToken = await user.getIdToken();
-    await createProfile(accessToken);
+    await fetcher("/api/profile", accessToken, { method: "POST" });
 
-    // Push to main page once complete
-    Router.push("/");
-
-    return user;
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signIn(email: string, pass: string) {
-    await firebase.auth().signInWithEmailAndPassword(email, pass);
-    Router.push("/");
+    setLoading(true);
+
+    const { user } = await firebase.auth().signInWithEmailAndPassword(email, pass);
+
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signInWithGoogle() {
+    setLoading(true);
+
     const googleProvider = new firebase.auth.GoogleAuthProvider();
-    const { additionalUserInfo } = await firebase.auth().signInWithPopup(googleProvider);
+    const { user, additionalUserInfo } = await firebase.auth().signInWithPopup(googleProvider);
 
-    if (additionalUserInfo?.isNewUser) await createProfile(accessToken);
+    if (additionalUserInfo?.isNewUser) {
+      const accessToken = await user.getIdToken();
+      await fetcher("/api/profile", accessToken, { method: "POST" });
+    }
 
-    Router.push("/");
+    showLoggedInToast(user.displayName);
+    await router.push((router.query.redirect as string) || "/");
   }
 
   async function signOut() {
-    Router.push("/");
+    setLoading(true);
+
     await firebase.auth().signOut();
+    await router.push("/login");
+
+    toast({
+      status: "success",
+      title: "You are now logged out.",
+      position: "bottom-right",
+    });
   }
 
   return {
+    loading,
     user,
     accessToken,
     signUp,
