@@ -3,7 +3,6 @@ import { Heading, Stack, useColorMode } from "@chakra-ui/core";
 import Layout from "components/layout/Layout";
 
 const Home: React.FC = () => {
-  const { colorMode, toggleColorMode } = useColorMode();
 
   return (
     <Layout title="Home">
